@@ -14,4 +14,9 @@ else
 fi
 
 ## Run grim/slurp pipeline
-grim -g "$(slurp)" - | "${SATTY_CMD[@]}" --filename - --output-filename "$OUTPUT_FILE"
+grim -g "$(slurp)" - | "${SATTY_CMD[@]}" --filename - --output-filename "$OUTPUT_FILE" --copy-command wl-copy
+
+## Place the saved screenshot in the clipboard as well (skipped on cancel)
+if [ -f "$OUTPUT_FILE" ]; then
+    wl-copy < "$OUTPUT_FILE"
+fi
