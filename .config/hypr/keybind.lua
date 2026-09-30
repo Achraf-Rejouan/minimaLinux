@@ -23,6 +23,7 @@ local KEY = {
 	NOTIFICATIONS = ("%s + SHIFT + N"):format(mainMod),
 
 	CLIPBOARD = ("%s + ALT + V"):format(mainMod),
+	CLIP_HISTORY = ("%s + V"):format(mainMod),
 	WINDOW_OVERVIEW = ("%s + A"):format(mainMod),
 
 	WALLPAPER = ("%s + W"):format(mainMod),
@@ -149,6 +150,13 @@ hl.bind(
 	KEY.CLIPBOARD,
 	hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"),
 	{ description = "Clipboard manager" }
+)
+
+-- Clipboard history (persistent, via cliphist)
+hl.bind(
+	KEY.CLIP_HISTORY,
+	hl.dsp.exec_cmd("cliphist list | wofi --dmenu --prompt 'Clipboard history' | cliphist decode | wl-copy"),
+	{ description = "Clipboard history" }
 )
 
 -- Window overview
