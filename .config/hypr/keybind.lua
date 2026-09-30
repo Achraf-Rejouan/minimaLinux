@@ -480,13 +480,13 @@ hl.bind(
 
 hl.bind(
 	KEY.WORKSPACE_NEXT,
-	hl.dsp.focus({ workspace = "r+1" }),
+	hl.dsp.focus({ workspace = "e+1" }),
 	{ description = "Next workspace" }
 )
 
 hl.bind(
 	KEY.WORKSPACE_PREV,
-	hl.dsp.focus({ workspace = "r-1" }),
+	hl.dsp.focus({ workspace = "e-1" }),
 	{ description = "Previous workspace" }
 )
 
