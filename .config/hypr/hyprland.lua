@@ -18,6 +18,10 @@ require("windowrules")
 require("animations")
 require("themes.theme")
 
+-- Load plugins declared in config so they exist before hl.config parses plugin.* keys.
+-- handlePluginLoads() loads these after the first pass and re-runs reload() with errors cleared.
+hl.plugin.load("/var/cache/hyprpm/" .. (os.getenv("USER") or "") .. "/hyprexpo/hyprexpo.so")
+
 hl.config({
     dwindle = {
         preserve_split = true,
