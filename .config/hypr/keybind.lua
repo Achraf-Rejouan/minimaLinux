@@ -208,7 +208,7 @@ hl.bind(
 
 hl.bind(
 	KEY.EXIT,
-	hl.dsp.exec_cmd("hyprctl dispatch exit"),
+	hl.dsp.exit(),
 	{ description = "Exit Hyprland" }
 )
 
@@ -238,14 +238,19 @@ hl.bind(
 -- Toggle ALL windows floating on current workspace
 hl.bind(
 	KEY.ALL_FLOAT,
-	hl.dsp.exec_cmd("hyprctl dispatch workspaceopt allfloat"),
+	function()
+		local windows = hl.get_workspace_windows(hl.get_active_workspace())
+		for i = 1, #windows do
+			hl.dispatch(hl.dsp.window.float({ action = "toggle", window = windows[i] }))
+		end
+	end,
 	{ description = "Toggle all windows floating" }
 )
 
 -- Toggle group
 hl.bind(
 	KEY.GROUP,
-	hl.dsp.exec_cmd("hyprctl dispatch togglegroup"),
+	hl.dsp.group.toggle(),
 	{ description = "Toggle group" }
 )
 
@@ -266,7 +271,7 @@ hl.bind(
 -- Force kill active window
 hl.bind(
 	KEY.FORCE_CLOSE,
-	hl.dsp.exec_cmd("hyprctl dispatch forcekillactive"),
+	hl.dsp.window.kill(),
 	{ description = "Force kill window" }
 )
 
@@ -311,33 +316,25 @@ hl.bind(
 
 hl.bind(
 	KEY.RESIZE_RIGHT,
-	function()
-		hl.exec_cmd("hyprctl dispatch resizeactive 30 0")
-	end,
+	hl.dsp.window.resize({ x = 30, y = 0, relative = true }),
 	{ description = "Resize right" }
 )
 
 hl.bind(
 	KEY.RESIZE_LEFT,
-	function()
-		hl.exec_cmd("hyprctl dispatch resizeactive -30 0")
-	end,
+	hl.dsp.window.resize({ x = -30, y = 0, relative = true }),
 	{ description = "Resize left" }
 )
 
 hl.bind(
 	KEY.RESIZE_UP,
-	function()
-		hl.exec_cmd("hyprctl dispatch resizeactive 0 -30")
-	end,
+	hl.dsp.window.resize({ x = 0, y = -30, relative = true }),
 	{ description = "Resize up" }
 )
 
 hl.bind(
 	KEY.RESIZE_DOWN,
-	function()
-		hl.exec_cmd("hyprctl dispatch resizeactive 0 30")
-	end,
+	hl.dsp.window.resize({ x = 0, y = 30, relative = true }),
 	{ description = "Resize down" }
 )
 
@@ -391,7 +388,7 @@ hl.bind(
 -- Toggle Dwindle split
 hl.bind(
 	KEY.TOGGLE_SPLIT,
-	hl.dsp.exec_cmd("hyprctl dispatch layoutmsg togglesplit"),
+	hl.dsp.layout("togglesplit"),
 	{ description = "Toggle split" }
 )
 
@@ -420,7 +417,7 @@ hl.bind(
 
 hl.bind(
 	KEY.OPAQUE,
-	hl.dsp.exec_cmd("hyprctl dispatch setprop active opaque toggle"),
+	hl.dsp.window.set_prop({ prop = "opaque", value = "toggle" }),
 	{ description = "Toggle opaque / opacity" }
 )
 
@@ -506,7 +503,7 @@ hl.bind(
 
 hl.bind(
 	KEY.SPECIAL,
-	hl.dsp.exec_cmd("hyprctl dispatch togglespecialworkspace"),
+	hl.dsp.workspace.toggle_special(""),
 	{ description = "Toggle special workspace" }
 )
 
