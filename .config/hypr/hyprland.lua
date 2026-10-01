@@ -40,6 +40,12 @@ hl.config({
             enabled = true,
         },
     },
+    plugin = {
+        hyprexpo = {
+            columns = 3,
+            workspace_method = "center current",
+        },
+    },
 })
 
 -- For Noctalia Color templates
