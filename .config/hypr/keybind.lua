@@ -624,6 +624,18 @@ hl.bind(
 	{ locked = true, description = "Mute" }
 )
 
+hl.bind(
+	"XF86MonBrightnessUp",
+	hl.dsp.exec_cmd("brightnessctl set 5%+"),
+	{ locked = true, repeating = true, description = "Brightness up" }
+)
+
+hl.bind(
+	"XF86MonBrightnessDown",
+	hl.dsp.exec_cmd("brightnessctl set 5%-"),
+	{ locked = true, repeating = true, description = "Brightness down" }
+)
+
 ----------------------------------------------------------------------
 -- 19. Search
 ----------------------------------------------------------------------
