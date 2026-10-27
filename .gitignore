@@ -4,3 +4,4 @@
 /.config/*
 !/.config/hypr/
 !/.config/kitty/
+!/.config/battery-charge-limit/

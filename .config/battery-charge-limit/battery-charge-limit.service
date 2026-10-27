@@ -1,0 +1,10 @@
+[Unit]
+Description=Apply ThinkPad battery charge thresholds
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/battery-charge-limit limit
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,126 @@
+#!/bin/sh
+set -eu
+
+CONFIG=/etc/battery-charge-limit.conf
+BAT=${BAT:-BAT0}
+BASE=/sys/class/power_supply/$BAT
+START_FILE=$BASE/charge_control_start_threshold
+END_FILE=$BASE/charge_control_end_threshold
+
+usage() {
+    cat <<'EOF'
+Usage: battery-charge-limit [limit|full|--now START END]
+
+  limit              Apply the values in /etc/battery-charge-limit.conf (default).
+  full               One-off 95/100. Does not change the config.
+  --now START END    One-off explicit thresholds. Does not change the config.
+
+Permanent changes: edit /etc/battery-charge-limit.conf, then run:
+  sudo battery-charge-limit limit
+EOF
+}
+
+log() {
+    printf '%s\n' "battery-charge-limit: $*"
+}
+
+die() {
+    printf '%s\n' "battery-charge-limit: $*" >&2
+    exit 1
+}
+
+is_uint() {
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+MODE=config
+START=85
+END=90
+
+case "${1:-}" in
+    '')
+        MODE=config
+        ;;
+    limit)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        MODE=config
+        ;;
+    full)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        START=95
+        END=100
+        MODE=now
+        ;;
+    --now)
+        [ "$#" -eq 3 ] || { usage >&2; exit 2; }
+        START=$2
+        END=$3
+        MODE=now
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    *)
+        usage >&2
+        exit 2
+        ;;
+esac
+
+if [ "$MODE" = config ]; then
+    if [ -r "$CONFIG" ]; then
+        # The file is root-owned and installed by the administrator.
+        # shellcheck disable=SC1090
+        . "$CONFIG"
+    else
+        log "warning: $CONFIG not readable; using defaults 85/90"
+    fi
+fi
+
+is_uint "$START" || { log "invalid start threshold: $START" >&2; exit 2; }
+is_uint "$END" || { log "invalid end threshold: $END" >&2; exit 2; }
+[ "$START" -le "$END" ] || die "start threshold ($START) must be <= end threshold ($END)"
+[ "$START" -le 99 ] || die "start threshold must be 0..99"
+[ "$END" -ge 1 ] && [ "$END" -le 100 ] || die "end threshold must be 1..100"
+
+# At boot thinkpad_acpi may not have created the attributes yet.
+# Wait up to 10 seconds (20 x 0.5s), then fail with a journal message.
+i=0
+while [ "$i" -lt 20 ]; do
+    if [ -w "$START_FILE" ] && [ -w "$END_FILE" ]; then
+        break
+    fi
+    i=$((i + 1))
+    sleep 0.5
+done
+
+[ -w "$START_FILE" ] && [ -w "$END_FILE" ] || die "$BAT threshold attributes not available after 10s; is thinkpad_acpi loaded?"
+
+CUR_START=$(cat "$START_FILE") || die "cannot read $START_FILE"
+CUR_END=$(cat "$END_FILE") || die "cannot read $END_FILE"
+
+is_uint "$CUR_START" || die "unexpected start value: $CUR_START"
+is_uint "$CUR_END" || die "unexpected end value: $CUR_END"
+
+if [ "$START" -gt "$CUR_START" ]; then
+    # Raising start: raise end first so start never exceeds end.
+    log "raising end threshold to $END first"
+    printf '%s\n' "$END" > "$END_FILE" || die "failed to write $END_FILE"
+    printf '%s\n' "$START" > "$START_FILE" || die "failed to write $START_FILE"
+else
+    # Lowering (or keeping) start: lower start first.
+    log "setting start threshold to $START"
+    printf '%s\n' "$START" > "$START_FILE" || die "failed to write $START_FILE"
+    printf '%s\n' "$END" > "$END_FILE" || die "failed to write $END_FILE"
+fi
+
+READ_START=$(cat "$START_FILE") || die "cannot read back $START_FILE"
+READ_END=$(cat "$END_FILE") || die "cannot read back $END_FILE"
+
+[ "$READ_START" = "$START" ] && [ "$READ_END" = "$END" ] || \
+    die "read-back mismatch: start=$READ_START (wanted $START), end=$READ_END (wanted $END)"
+
+log "applied $BAT charge thresholds: start=$READ_START end=$READ_END mode=$MODE"

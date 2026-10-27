@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+# systemd-sleep passes "pre" or "post" as $1.
+# Only re-apply after resume; ignore "pre".
+[ "${1:-}" = "post" ] || exit 0
+
+exec /usr/local/bin/battery-charge-limit limit
