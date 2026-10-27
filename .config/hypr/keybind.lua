@@ -24,8 +24,8 @@ local KEY = {
 
 	CLIPBOARD = ("%s + ALT + V"):format(mainMod),
 	CLIP_HISTORY = ("%s + V"):format(mainMod),
-	WINDOW_OVERVIEW = ("%s + A"):format(mainMod),
-	EXPO = ("%s + O"):format(mainMod),
+	WINDOW_OVERVIEW = ("%s + O"):format(mainMod),
+	EXPO = ("%s + A"):format(mainMod),
 
 	WALLPAPER = ("%s + W"):format(mainMod),
 	WALLPAPER_NEXT = ("%s + SHIFT + W"):format(mainMod),
