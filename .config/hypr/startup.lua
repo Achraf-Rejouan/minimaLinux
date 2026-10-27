@@ -7,6 +7,8 @@ local env = {
     "ELECTRON_OZONE_PLATFORM_HINT,wayland",
 }
 
+local scrPath = (os.getenv("HOME") or "") .. "/.config/hypr/Scripts"
+
 local nvidia_optional = {
     "WLR_NO_HARDWARE_CURSORS,1",
     "LIBVA_DRIVER_NAME,nvidia",
@@ -22,6 +24,7 @@ local exec_once = {
     "noctalia",
     "wl-paste --watch cliphist store",
     "sh -c 'sleep 3 && easyeffects --gapplication-service'",
+    scrPath .. "/bluetooth-off-at-start.sh",
 }
 
 local nvidia_exec_once_optional = {
