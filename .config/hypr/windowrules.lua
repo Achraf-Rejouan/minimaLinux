@@ -19,6 +19,9 @@ hl.window_rule({ match = { title = "^Choose files to upload$" },                
 hl.window_rule({ match = { title = "^All Files$" },                                       float = true, size = "800 600", })
 hl.window_rule({ match = { title = "^Affinity Photo 2$" },                                no_anim = true, no_shadow = true, border_size = 0, no_blur = true, no_dim = true, immediate = true, decorate = false, opaque = true, tonemap = off, })
 
+-- Battery charge limit popup
+hl.window_rule({ match = { class = "^org\\.minima\\.BatteryChargeLimit$" },               float = true, center = true, size = "340 320", })
+
 
 hl.window_rule({ match = { class = "^[Ss]team$", title = "^Steam Settings$" }, float = true })
 hl.window_rule({ match = { class = "^[Ss]team$", title = "^Friends List$" }, float = true })

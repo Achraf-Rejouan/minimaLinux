@@ -2,7 +2,8 @@
 
 A small, package-free systemd oneshot that applies an 85% start / 90% end
 charge threshold to `BAT0`, plus a systemd sleep hook that re-applies the
-limit after suspend and hibernate.
+limit after suspend and hibernate. A small GTK4 popup exposes the same
+helper without adding a daemon or tray icon.
 
 Target machine: ThinkPad E14 Gen 3, kernel 7.2.11, `thinkpad_acpi` battery
 extension. The threshold attributes were verified read-only; the actual
@@ -22,6 +23,8 @@ Repository copies live in `~/.config/battery-charge-limit/`:
 | `battery-charge-limit.service` | `/etc/systemd/system/battery-charge-limit.service` | `0644` |
 | `battery-charge-limit-sleep` | `/usr/lib/systemd/system-sleep/battery-charge-limit` | `0755` |
 | `battery-charge-limit.conf` | `/etc/battery-charge-limit.conf` | `0644` |
+| `battery-charge-limit-gui.py` | run in place from `~/.config/battery-charge-limit/` | `0755` |
+| `battery-charge-limit-gui.desktop` | `~/.local/share/applications/battery-charge-limit-gui.desktop` | `0644` |
 
 `/usr/lib/systemd/system-sleep/` is the path systemd 262 reads on this
 machine. The hook only acts when its first argument is `post`; `pre` is
@@ -81,6 +84,66 @@ sudo /usr/local/bin/battery-charge-limit limit
 # Same as no argument (used by the service and sleep hook)
 sudo /usr/local/bin/battery-charge-limit
 ```
+
+## GUI
+
+`battery-charge-limit-gui.py` is a small GTK4 popup for the same limits. It
+uses the already-installed system Python 3, `python-gobject`, and GTK4; no
+additional packages are needed. It is unprivileged: it reads
+`/sys/class/power_supply/BAT0/` directly and calls only the root-owned helper
+for changes. It reads `START`/`END` from `/etc/battery-charge-limit.conf`
+(read-only) to label the buttons and recognize the configured mode.
+
+Open it with `SUPER + SHIFT + B` or:
+
+```bash
+~/.config/battery-charge-limit/battery-charge-limit-gui.py
+```
+
+The popup is a 340x320 floating window, centered by
+`hypr/windowrules.lua`. It refreshes every 3 seconds only while open; closing
+it stops the timer. There is no tray icon and no background service.
+
+Buttons:
+
+- **Limit to 90% (recommended)** runs
+  `pkexec /usr/local/bin/battery-charge-limit limit` and re-applies the
+  configured 85/90 values.
+- **Charge to 100% once** runs
+  `pkexec /usr/local/bin/battery-charge-limit full`, the one-off 95/100
+  mode. The popup marks that mode as selected and says it returns to 90%
+  after the next reboot or sleep. The limit button then becomes
+  **Back to 90%**.
+
+Every change opens the polkit agent's graphical password prompt. The GUI
+never runs the user-writable copy in this folder with privilege: `pkexec` is
+hardcoded to `/usr/bin/pkexec` and the helper to
+`/usr/local/bin/battery-charge-limit`. The GUI refuses to run if that helper
+is not root-owned or is writable by a non-root user. Cancelling the prompt
+or a helper error is shown inline and leaves the thresholds unchanged.
+
+No sudoers `NOPASSWD` entry and no custom polkit rule is installed. The
+session needs a polkit authentication agent; this setup runs
+`polkit-gnome-authentication-agent-1`. If clicking a button does nothing,
+check that an agent is running:
+
+```bash
+pgrep -fa polkit
+```
+
+### Launcher entry
+
+The repo copy `battery-charge-limit-gui.desktop` can be installed for the
+launcher without root:
+
+```bash
+install -Dm644 ~/.config/battery-charge-limit/battery-charge-limit-gui.desktop \
+  ~/.local/share/applications/battery-charge-limit-gui.desktop
+update-desktop-database ~/.local/share/applications 2>/dev/null || true
+```
+
+The entry points at the script in this folder. If the folder moves, update
+`Exec`/`TryExec` or reinstall the entry.
 
 ## Temporary 100% before a trip
 

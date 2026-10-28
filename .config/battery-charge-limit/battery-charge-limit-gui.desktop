@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Battery Charge Limit
+GenericName=Battery
+Comment=Set the ThinkPad battery charge limit (85/90)
+Exec=/home/achraf_rejouan/.config/battery-charge-limit/battery-charge-limit-gui.py
+TryExec=/home/achraf_rejouan/.config/battery-charge-limit/battery-charge-limit-gui.py
+Icon=battery
+Terminal=false
+Categories=System;
+Keywords=battery;charge;limit;thinkpad;threshold;
+StartupNotify=true
+StartupWMClass=org.minima.BatteryChargeLimit

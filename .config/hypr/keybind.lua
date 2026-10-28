@@ -8,6 +8,7 @@ local EXPLORER = "thunar"
 local BROWSER = scrPath .. "/browser-launcher.sh"
 local WORKSPACE = scrPath .. "/workspace.sh"
 local SATTY = scrPath .. "/satty.sh"
+local BATTERY_GUI = (os.getenv("HOME") or "") .. "/.config/battery-charge-limit/battery-charge-limit-gui.py"
 
 local KEY = {
 	-- Applications
@@ -15,6 +16,7 @@ local KEY = {
 	EXPLORER = ("%s + E"):format(mainMod),
 	EDITOR = ("%s + C"):format(mainMod),
 	BROWSER = ("%s + B"):format(mainMod),
+	BATTERY_GUI = ("%s + SHIFT + B"):format(mainMod),
 
 	-- Noctalia
 	HELP = ("%s + H"):format(mainMod),
@@ -112,6 +114,10 @@ hl.bind(KEY.EDITOR, hl.dsp.exec_cmd(EDITOR), {
 
 hl.bind(KEY.BROWSER, hl.dsp.exec_cmd(BROWSER), {
 	description = "Browser",
+})
+
+hl.bind(KEY.BATTERY_GUI, hl.dsp.exec_cmd(BATTERY_GUI), {
+	description = "Battery charge limit",
 })
 
 ----------------------------------------------------------------------
